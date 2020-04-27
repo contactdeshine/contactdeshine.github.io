@@ -1,95 +1,62 @@
-jQuery(document).ready(function($){
-    
-    // jQuery sticky Menu
-    
-	$(".mainmenu-area").sticky({topSpacing:0});
-    
-    
-    $('.product-carousel').owlCarousel({
-        loop:true,
-        nav:true,
-        margin:20,
-        responsiveClass:true,
-        responsive:{
-            0:{
-                items:1,
-            },
-            600:{
-                items:3,
-            },
-            1000:{
-                items:5,
-            }
-        }
-    });  
-    
-    $('.related-products-carousel').owlCarousel({
-        loop:true,
-        nav:true,
-        margin:20,
-        responsiveClass:true,
-        responsive:{
-            0:{
-                items:1,
-            },
-            600:{
-                items:2,
-            },
-            1000:{
-                items:2,
-            },
-            1200:{
-                items:3,
-            }
-        }
-    });  
-    
-    $('.brand-list').owlCarousel({
-        loop:true,
-        nav:true,
-        margin:20,
-        responsiveClass:true,
-        responsive:{
-            0:{
-                items:1,
-            },
-            600:{
-                items:3,
-            },
-            1000:{
-                items:4,
-            }
-        }
-    });    
-    
-    
-    // Bootstrap Mobile Menu fix
-    $(".navbar-nav li a").click(function(){
-        $(".navbar-collapse").removeClass('in');
-    });    
-    
-    // jQuery Scroll effect
-    $('.navbar-nav li a, .scroll-to-up').bind('click', function(event) {
-        var $anchor = $(this);
-        var headerH = $('.header-area').outerHeight();
-        $('html, body').stop().animate({
-            scrollTop : $($anchor.attr('href')).offset().top - headerH + "px"
-        }, 1200, 'easeInOutExpo');
+!function () {
+    let speed = 50
 
-        event.preventDefault();
-    });    
-    
-    // Bootstrap ScrollPSY
-    $('body').scrollspy({ 
-        target: '.navbar-collapse',
-        offset: 95
-    })      
-});
+    writeCode('', cssCode, () => {
+        createPaper(() => {
+            writeCode(cssCode, htmlCode, () => {
+                writeMarkdown(markdown, () => {
+                    writeCode(cssCode + htmlCode, changeCode, () => {
+                        convertMarkdownToHtml(() => {
+                            writeCode(cssCode + htmlCode + changeCode, conclusion, () => {
+                            })
+                        })
+                    })
+                })
+            })
+        })
+    })
 
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    function writeCode(prefix, code, fn) {
+        let domCode = document.querySelector('#code')
+        let n = 0
+        var clock = setInterval(() => {
+            n += 1
+            domCode.innerHTML = Prism.highlight(prefix + code.substring(0, n), Prism.languages.css)
+            myStyle.innerHTML = prefix + code.substring(0, n)
+            domCode.scrollIntoView({behavior: "instant", block: "end", inline: "nearest"})
+            if (n >= code.length) {
+                window.clearInterval(clock)
+                fn.call()
+            }
+        }, speed)
+    }
 
-  ga('create', 'UA-10146041-21', 'auto');
-  ga('send', 'pageview');
+    function createPaper(fn) {
+        var paper = document.createElement('pre')
+        paper.id = 'paper'
+        document.querySelector('#box').appendChild(paper)
+        fn.call()
+    }
+
+    function writeMarkdown(markdown, fn) {
+        let domPaper = document.querySelector('#paper')
+        let n = 0
+        var clock = setInterval(() => {
+            n += 1
+            domPaper.innerHTML = Prism.highlight(markdown.substring(0, n), Prism.languages.markdown)
+            domPaper.scrollIntoView({behavior: "instant", block: "end", inline: "nearest"})
+            if (n >= markdown.length) {
+                window.clearInterval(clock)
+                fn.call()
+            }
+        }, speed)
+
+    }
+
+    function convertMarkdownToHtml(fn) {
+        document.querySelector('#paper').innerHTML = marked(markdown)
+        fn.call()
+    }
+
+
+}.call()
